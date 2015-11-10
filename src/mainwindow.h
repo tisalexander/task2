@@ -19,6 +19,8 @@ public:
 
 private slots:
 	void browse();
+	void bytesRead(qint64 bytes);
+	void readingStarted();
 	void start();
 
 private:

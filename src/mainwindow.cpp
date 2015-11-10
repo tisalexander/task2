@@ -29,6 +29,24 @@ void MainWindow::browse()
 	}
 }
 
+void MainWindow::bytesRead(qint64 bytes)
+{
+	QString position("Bytes read: " + QString::number(bytes));
+	ui->label_bytes_read->setText(position);
+
+	float progress = (float)bytes / m_reader.filesize();
+	int value = progress * 100.0f + 0.5f;
+	ui->progressBar->setValue(progress * 100.0f + 0.5f);
+}
+
+void MainWindow::readingStarted()
+{
+	QString filesize("Filesize: " + QString::number(m_reader.filesize()));
+	ui->label_filesize->setText(filesize);
+
+	ui->progressBar->setValue(0);
+}
+
 void MainWindow::start()
 {
 	qDebug() << QThread::currentThreadId();
@@ -45,4 +63,10 @@ void MainWindow::connect()
 
 	QObject::connect(ui->pushButton, SIGNAL(clicked()),
 					 SLOT(start()));
+
+	QObject::connect(&m_reader, SIGNAL(readingStarted()),
+					 SLOT(readingStarted()));
+
+	QObject::connect(&m_reader, SIGNAL(bytesRead(qint64)),
+					 SLOT(bytesRead(qint64)));
 }

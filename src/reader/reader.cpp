@@ -15,21 +15,6 @@ ReaderWorker::~ReaderWorker()
 {
 }
 
-void ReaderWorker::setFilepath(const QString &filepath)
-{
-	m_filepath = filepath;
-}
-
-QString ReaderWorker::filepath() const
-{
-	return m_filepath;
-}
-
-void ReaderWorker::setBuffer(Buffer *buffer)
-{
-	m_pBuffer = buffer;
-}
-
 void ReaderWorker::read()
 {
 	qDebug() << QThread::currentThreadId();
@@ -44,7 +29,29 @@ void ReaderWorker::read()
 		return;
 	}
 
-	const qint64 filesize = file.size();
+	QDataStream in(&file);
+
+	qint64 readBytes = 0;
+	qint64 position = 0;
+	qint64 bytesToRead = 0 ;
+
+	m_filesize = file.size();
+	char *buffer = m_pBuffer->buffer();
+
+	bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
+
+	emit readingStarted();
+
+	while (bytesToRead) {
+		readBytes = in.readRawData(buffer, bytesToRead);
+
+		position = file.pos();
+		bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
+
+		emit bytesRead(position);
+	}
+
+	file.close();
 
 	m_pBuffer->mutex()->unlock();
 }
@@ -63,6 +70,12 @@ Reader::Reader()
 	connect(this, SIGNAL(signalRead()),
 			m_pWorker, SLOT(read()));
 
+	connect(m_pWorker, SIGNAL(readingStarted()),
+			this, SIGNAL(readingStarted()));
+
+	connect(m_pWorker, SIGNAL(bytesRead(qint64)),
+			this, SIGNAL(bytesRead(qint64)));
+
 	m_pThread->start();
 }
 
@@ -74,17 +87,22 @@ Reader::~Reader()
 
 void Reader::setFilepath(const QString &filepath)
 {
-	m_pWorker->setFilepath(filepath);
+	m_pWorker->m_filepath = filepath;
 }
 
 QString Reader::filepath() const
 {
-	return m_pWorker->filepath();
+	return m_pWorker->m_filepath;
+}
+
+qint64 Reader::filesize() const
+{
+	return m_pWorker->m_filesize;
 }
 
 void Reader::setBuffer(Buffer *buffer)
 {
-	m_pWorker->setBuffer(buffer);
+	m_pWorker->m_pBuffer = buffer;
 }
 
 void Reader::read()

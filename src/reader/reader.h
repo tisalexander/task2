@@ -13,26 +13,24 @@ class ReaderWorker : public QObject
 
 friend class Reader;
 
-public:
-	void setFilepath(const QString &filepath);
-	QString filepath() const;
-
-	void setBuffer(Buffer *buffer);
-
 public slots:
 	void read();
 
 signals:
+	void readingStarted();
 	void blockReadingFinished();
 	void fileReadingFinished();
+	void bytesRead(qint64 bytes);
 
 protected:
 	ReaderWorker();
 	~ReaderWorker();
 
 private:
-	QString m_filepath;
 	Buffer *m_pBuffer;
+	QString m_filepath;
+	qint64 m_filesize;
+	qint64 m_position;
 };
 
 /*------- Reader ------------------------------------------------------------*/
@@ -47,12 +45,17 @@ public:
 	void setFilepath(const QString &filepath);
 	QString filepath() const;
 
+	qint64 filesize() const;
+
 	void setBuffer(Buffer *buffer);
 
 	void read();
 
 signals:
 	void signalRead();
+
+	void readingStarted();
+	void bytesRead(qint64 bytes);
 
 private:
 	ReaderWorker *m_pWorker;

@@ -42,6 +42,27 @@
          </item>
         </layout>
        </item>
+       <item>
+        <widget class="QLabel" name="label_filesize">
+         <property name="text">
+          <string>Filesize: ---</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_bytes_read">
+         <property name="text">
+          <string>Bytes read: ---</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -89,10 +110,6 @@
      </layout>
     </item>
    </layout>
-   <zorder>groupBox</zorder>
-   <zorder>horizontalLayoutWidget</zorder>
-   <zorder>verticalSpacer</zorder>
-   <zorder>pushButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
