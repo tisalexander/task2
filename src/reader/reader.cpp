@@ -9,6 +9,7 @@
 ReaderWorker::ReaderWorker()
 {
 	m_pBuffer = 0;
+	m_stop = false;
 }
 
 ReaderWorker::~ReaderWorker()
@@ -19,15 +20,12 @@ void ReaderWorker::read()
 {
 	qDebug() << QThread::currentThreadId();
 
-	m_pBuffer->mutex()->lock();
-
-	const int bufferSize = m_pBuffer->size();
-
 	QFile file(m_filepath);
 	if (!file.open(QIODevice::ReadOnly)) {
-		m_pBuffer->mutex()->unlock();
 		return;
 	}
+
+	m_filesize = file.size();
 
 	QDataStream in(&file);
 
@@ -35,25 +33,37 @@ void ReaderWorker::read()
 	qint64 position = 0;
 	qint64 bytesToRead = 0 ;
 
-	m_filesize = file.size();
 	char *buffer = m_pBuffer->buffer();
+	const int bufferSize = m_pBuffer->size();
 
 	bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
 
 	emit readingStarted();
 
+	m_stop = false;
+
 	while (bytesToRead) {
-		readBytes = in.readRawData(buffer, bytesToRead);
+		m_pBuffer->lock();
 
-		position = file.pos();
-		bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
+		if (m_pBuffer->isEmpty()) {
+			// qDebug() << "Reader: " << QThread::currentThreadId();
+			readBytes = in.readRawData(buffer, bytesToRead);
+			position = file.pos();
+			bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
+			m_pBuffer->setDataSize(readBytes);
 
-		emit bytesRead(position);
+			emit bytesRead(position);
+		}
+
+		m_pBuffer->unlock();
+
+		if (m_stop) {
+			file.close();
+			return;
+		}
 	}
 
 	file.close();
-
-	m_pBuffer->mutex()->unlock();
 }
 
 /*------- Reader ------------------------------------------------------------*/
@@ -81,6 +91,7 @@ Reader::Reader()
 
 Reader::~Reader()
 {
+	stop();
 	m_pThread->quit();
 	m_pThread->wait();
 }
@@ -108,4 +119,9 @@ void Reader::setBuffer(Buffer *buffer)
 void Reader::read()
 {
 	emit signalRead();
+}
+
+void Reader::stop()
+{
+	m_pWorker->m_stop = true;
 }

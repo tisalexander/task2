@@ -31,6 +31,7 @@ private:
 	QString m_filepath;
 	qint64 m_filesize;
 	qint64 m_position;
+	bool m_stop;
 };
 
 /*------- Reader ------------------------------------------------------------*/
@@ -50,6 +51,7 @@ public:
 	void setBuffer(Buffer *buffer);
 
 	void read();
+	void stop();
 
 signals:
 	void signalRead();

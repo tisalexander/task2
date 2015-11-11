@@ -13,12 +13,17 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
+#Buffer
+SOURCES += buffer/buffer.cpp
+
+HEADERS += buffer/buffer.h
+
 #Reader
 SOURCES += reader/reader.cpp
 
 HEADERS += reader/reader.h
 
-#Buffer
-SOURCES += buffer/buffer.cpp
+#Writer
+SOURCES += writer/writer.cpp
 
-HEADERS += buffer/buffer.h
+HEADERS += writer/writer.h

@@ -3,6 +3,7 @@
 
 #include "buffer/buffer.h"
 #include "reader/reader.h"
+#include "writer/writer.h"
 #include <QtGui/QMainWindow>
 
 namespace Ui {
@@ -25,8 +26,9 @@ private slots:
 
 private:
 	Ui::MainWindow *ui;
-	Reader m_reader;
 	Buffer m_buffer;
+	Reader m_reader;
+	Writer m_writer;
 
 	void connect();
 };

@@ -14,11 +14,22 @@ public:
 	char *buffer();
 	int size() const;
 
-	QMutex *mutex();
+	void setDataSize(int size);
+	int dataSize() const;
+
+	void clear();
+
+	bool isEmpty() const;
+
+	void lock();
+	void unlock();
 
 private:
 	char *m_pBuffer;
 	const int m_count;
+
+	int m_dataSize;
+
 	QMutex m_mutex;
 };
 

@@ -51,6 +51,9 @@ void MainWindow::start()
 {
 	qDebug() << QThread::currentThreadId();
 
+	m_writer.setBuffer(&m_buffer);
+	m_writer.write();
+
 	m_reader.setFilepath(ui->lineEdit->text());
 	m_reader.setBuffer(&m_buffer);
 	m_reader.read();
