@@ -25,7 +25,7 @@ void MainWindow::browse()
 
 	if (!filepath.isEmpty()) {
 		m_reader.setFilepath(filepath);
-		ui->lineEdit->setText(filepath);
+		ui->lineEdit_filepath->setText(filepath);
 	}
 }
 
@@ -35,41 +35,52 @@ void MainWindow::bytesRead(qint64 bytes)
 	ui->label_bytes_read->setText(position);
 
 	float progress = (float)bytes / m_reader.filesize();
-	int value = progress * 100.0f + 0.5f;
 	ui->progressBar->setValue(progress * 100.0f + 0.5f);
+}
+
+void MainWindow::readingFinished()
+{
+	ui->lineEdit_filepath->setEnabled(true);
+	ui->pushButton_browse->setEnabled(true);
+	ui->pushButton_start->setEnabled(true);
 }
 
 void MainWindow::readingStarted()
 {
 	QString filesize("Filesize: " + QString::number(m_reader.filesize()));
 	ui->label_filesize->setText(filesize);
-
 	ui->progressBar->setValue(0);
+
+	ui->lineEdit_filepath->setEnabled(false);
+	ui->pushButton_browse->setEnabled(false);
+	ui->pushButton_start->setEnabled(false);
 }
 
 void MainWindow::start()
 {
-	qDebug() << QThread::currentThreadId();
+	m_controller.setBuffer(&m_buffer);
+	m_controller.setReader(&m_reader);
+	m_controller.setWriter(&m_writer);
 
-	m_writer.setBuffer(&m_buffer);
-	m_writer.write();
+	m_controller.setInputFilepath(ui->lineEdit_filepath->text());
 
-	m_reader.setFilepath(ui->lineEdit->text());
-	m_reader.setBuffer(&m_buffer);
-	m_reader.read();
+	m_controller.start();
 }
 
 void MainWindow::connect()
 {
-	QObject::connect(ui->pushButton_2, SIGNAL(clicked()),
+	QObject::connect(ui->pushButton_browse, SIGNAL(clicked()),
 					 SLOT(browse()));
 
-	QObject::connect(ui->pushButton, SIGNAL(clicked()),
+	QObject::connect(ui->pushButton_start, SIGNAL(clicked()),
 					 SLOT(start()));
 
-	QObject::connect(&m_reader, SIGNAL(readingStarted()),
+	QObject::connect(&m_controller, SIGNAL(fileOpened()),
 					 SLOT(readingStarted()));
 
-	QObject::connect(&m_reader, SIGNAL(bytesRead(qint64)),
+	QObject::connect(&m_controller, SIGNAL(bytesRead(qint64)),
 					 SLOT(bytesRead(qint64)));
+
+	QObject::connect(&m_controller, SIGNAL(closed()),
+					 SLOT(readingFinished()));
 }

@@ -18,6 +18,11 @@ SOURCES += buffer/buffer.cpp
 
 HEADERS += buffer/buffer.h
 
+#Controller
+SOURCES += controller/controller.cpp
+
+HEADERS += controller/controller.h
+
 #Reader
 SOURCES += reader/reader.cpp
 

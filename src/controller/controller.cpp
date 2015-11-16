@@ -3,15 +3,6 @@
 #include "../reader/reader.h"
 #include <QtCore/QDebug>
 
-/*------- ControllerWorker --------------------------------------------------*/
-ControllerWorker::ControllerWorker()
-{
-}
-
-ControllerWorker::~ControllerWorker()
-{
-}
-
 /*------- Controller --------------------------------------------------------*/
 Controller::Controller()
 {

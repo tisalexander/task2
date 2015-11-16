@@ -8,19 +8,6 @@ class QThread;
 class Reader;
 class Writer;
 
-/*------- ControllerWorker --------------------------------------------------*/
-class ControllerWorker : public QObject
-{
-	Q_OBJECT
-
-public:
-	ControllerWorker();
-	~ControllerWorker();
-
-private:
-
-};
-
 /*------- Controller --------------------------------------------------------*/
 class Controller : public QObject
 {
