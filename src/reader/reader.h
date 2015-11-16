@@ -1,6 +1,7 @@
 #ifndef RWTHREADS_READER_H
 #define RWTHREADS_READER_H
 
+#include <QtCore/QFile>
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
@@ -11,25 +12,28 @@ class ReaderWorker : public QObject
 {
 	Q_OBJECT
 
-friend class Reader;
-
-public slots:
-	void read();
-
-signals:
-	void readingStarted();
-	void blockReadingFinished();
-	void fileReadingFinished();
-	void bytesRead(qint64 bytes);
+	friend class Reader;
 
 protected:
 	ReaderWorker();
 	~ReaderWorker();
 
+protected slots:
+	void close();
+	void open();
+	void readBlock();
+
+signals:
+	void bytesRead(qint64 pos);
+	void closed();
+	// void error(QString text);
+	void opened();
+
 private:
-	Buffer *m_pBuffer;
+	QFile m_file;
 	QString m_filepath;
 	qint64 m_filesize;
+	Buffer *m_pBuffer;
 	qint64 m_position;
 	bool m_stop;
 };
@@ -43,21 +47,25 @@ public:
 	Reader();
 	~Reader();
 
-	void setFilepath(const QString &filepath);
-	QString filepath() const;
-
 	qint64 filesize() const;
-
 	void setBuffer(Buffer *buffer);
+	void setFilepath(const QString &filepath);
 
-	void read();
-	void stop();
+public slots:
+	void close();
+	void open();
+	// void open(const QString &filepath);
+	void readBlock();
 
 signals:
-	void signalRead();
+	void bytesRead(qint64 pos);
+	void closed();
+	// void error(QString text);
+	void opened();
 
-	void readingStarted();
-	void bytesRead(qint64 bytes);
+	void signalClose();
+	void signalOpen();
+	void signalReadBlock();
 
 private:
 	ReaderWorker *m_pWorker;

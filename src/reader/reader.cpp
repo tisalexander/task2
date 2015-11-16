@@ -9,6 +9,7 @@
 ReaderWorker::ReaderWorker()
 {
 	m_pBuffer = 0;
+	m_position = 0;
 	m_stop = false;
 }
 
@@ -16,54 +17,61 @@ ReaderWorker::~ReaderWorker()
 {
 }
 
-void ReaderWorker::read()
+void ReaderWorker::close()
 {
-	qDebug() << QThread::currentThreadId();
+	m_file.close();
 
-	QFile file(m_filepath);
-	if (!file.open(QIODevice::ReadOnly)) {
+	qDebug() << "ReaderWorker::close()";
+	qDebug() << "thread ID: " << QThread::currentThreadId() << "\n";
+
+	emit closed();
+}
+
+void ReaderWorker::open()
+{
+	m_file.setFileName(m_filepath);
+	if (!m_file.open(QIODevice::ReadOnly)) {
 		return;
 	}
 
-	m_filesize = file.size();
+	m_filesize = m_file.size();
+	m_position = m_file.pos();
 
-	QDataStream in(&file);
+	emit opened();
+}
+
+void ReaderWorker::readBlock()
+{
+	QDataStream in(&m_file);
 
 	qint64 readBytes = 0;
-	qint64 position = 0;
-	qint64 bytesToRead = 0 ;
+	qint64 bytesToRead = 0;
 
 	char *buffer = m_pBuffer->buffer();
 	const int bufferSize = m_pBuffer->size();
 
-	bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
-
-	emit readingStarted();
+	bytesToRead = qMin((qint64)bufferSize, m_filesize - m_position);
 
 	m_stop = false;
 
-	while (bytesToRead) {
+	if (bytesToRead) {
 		m_pBuffer->lock();
 
-		if (m_pBuffer->isEmpty()) {
-			// qDebug() << "Reader: " << QThread::currentThreadId();
-			readBytes = in.readRawData(buffer, bytesToRead);
-			position = file.pos();
-			bytesToRead = qMin((qint64)bufferSize, m_filesize - position);
-			m_pBuffer->setDataSize(readBytes);
+		qDebug() << "ReaderWorker::readBlock()";
 
-			emit bytesRead(position);
-		}
+		readBytes = in.readRawData(buffer, bytesToRead);
+		m_position = m_file.pos();
+		m_pBuffer->setDataSize(readBytes);
 
 		m_pBuffer->unlock();
 
-		if (m_stop) {
-			file.close();
-			return;
-		}
+		emit bytesRead(m_position);
 	}
 
-	file.close();
+	// if (m_stop) {
+	// 	file.close();
+	// 	return;
+	// }
 }
 
 /*------- Reader ------------------------------------------------------------*/
@@ -77,33 +85,34 @@ Reader::Reader()
 	connect(m_pThread, SIGNAL(finished()),
 			m_pWorker, SLOT(deleteLater()));
 
-	connect(this, SIGNAL(signalRead()),
-			m_pWorker, SLOT(read()));
+	connect(m_pThread, SIGNAL(finished()),
+			m_pThread, SLOT(deleteLater()));
 
-	connect(m_pWorker, SIGNAL(readingStarted()),
-			this, SIGNAL(readingStarted()));
+	connect(this, SIGNAL(signalClose()),
+			m_pWorker, SLOT(close()));
+
+	connect(m_pWorker, SIGNAL(closed()),
+			SIGNAL(closed()));
+
+	connect(this, SIGNAL(signalOpen()),
+			m_pWorker, SLOT(open()));
+
+	connect(m_pWorker, SIGNAL(opened()),
+			SIGNAL(opened()));
+
+	connect(this, SIGNAL(signalReadBlock()),
+			m_pWorker, SLOT(readBlock()));
 
 	connect(m_pWorker, SIGNAL(bytesRead(qint64)),
-			this, SIGNAL(bytesRead(qint64)));
+			SIGNAL(bytesRead(qint64)));
 
 	m_pThread->start();
 }
 
 Reader::~Reader()
 {
-	stop();
 	m_pThread->quit();
 	m_pThread->wait();
-}
-
-void Reader::setFilepath(const QString &filepath)
-{
-	m_pWorker->m_filepath = filepath;
-}
-
-QString Reader::filepath() const
-{
-	return m_pWorker->m_filepath;
 }
 
 qint64 Reader::filesize() const
@@ -116,12 +125,25 @@ void Reader::setBuffer(Buffer *buffer)
 	m_pWorker->m_pBuffer = buffer;
 }
 
-void Reader::read()
+void Reader::setFilepath(const QString &filepath)
 {
-	emit signalRead();
+	m_pWorker->m_filepath = filepath;
 }
 
-void Reader::stop()
+void Reader::close()
 {
-	m_pWorker->m_stop = true;
+	qDebug() << "Reader::close()";
+	qDebug() << "thread ID: " << QThread::currentThreadId() << "\n";
+
+	emit signalClose();
+}
+
+void Reader::open()
+{
+	emit signalOpen();
+}
+
+void Reader::readBlock()
+{
+	emit signalReadBlock();
 }
