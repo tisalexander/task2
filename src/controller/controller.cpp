@@ -1,6 +1,7 @@
 #include "controller.h"
 
 #include "../reader/reader.h"
+#include "../writer/writer.h"
 #include <QtCore/QDebug>
 
 /*------- Controller --------------------------------------------------------*/
@@ -38,6 +39,7 @@ void Controller::setInputFilepath(const QString &filepath)
 void Controller::start()
 {
 	m_pReader->setBuffer(m_pBuffer);
+	m_pWriter->setBuffer(m_pBuffer);
 
 	connect(m_pReader, SIGNAL(opened()),
 			SLOT(onFileOpened()));
@@ -49,6 +51,7 @@ void Controller::start()
 			SIGNAL(closed()));
 
 	m_pReader->open();
+	m_pWriter->open();
 }
 
 void Controller::onFileOpened()
@@ -57,7 +60,7 @@ void Controller::onFileOpened()
 
 	qDebug() << "Controller::fileOpened()";
 
-	m_pReader->readBlock();
+	// m_pReader->readBlock();
 }
 
 void Controller::onBytesRead(qint64 pos)

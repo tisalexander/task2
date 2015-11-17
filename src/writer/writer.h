@@ -1,6 +1,7 @@
 #ifndef RWTHREADS_WRITER_H
 #define RWTHREADS_WRITER_H
 
+#include <QtCore/QFile>
 #include <QtCore/QObject>
 
 class Buffer;
@@ -13,15 +14,21 @@ class WriterWorker : public QObject
 	friend class Writer;
 
 protected slots:
+	void open();
 	void write();
+
+signals:
+	void opened();
 
 protected:
 	WriterWorker();
 	~WriterWorker();
 
 private:
-	Buffer *m_pBuffer;
 	bool m_stop;
+	Buffer *m_pBuffer;
+	QFile m_file;
+	QString m_filepath;
 };
 
 /*------- Writer ------------------------------------------------------------*/
@@ -34,12 +41,17 @@ public:
 	~Writer();
 
 	void setBuffer(Buffer *buffer);
+	void setFilepath(const QString &filepath);
 	void stop();
 
 public slots:
+	void open();
 	void write();
 
 signals:
+	void opened();
+
+	void signalOpen();
 	void signalWrite();
 
 private:
