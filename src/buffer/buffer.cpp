@@ -2,7 +2,7 @@
 
 /*------- Buffer ------------------------------------------------------------*/
 Buffer::Buffer()
-	: m_count(1000)
+	: m_count(100000)
 {
 	m_pBuffer = new char[m_count];
 	m_dataSize = 0;

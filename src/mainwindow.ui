@@ -34,7 +34,7 @@
           <widget class="QLineEdit" name="lineEdit_filepath"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_browse">
+          <widget class="QPushButton" name="pushButton_browseInput">
            <property name="text">
             <string>Browse</string>
            </property>
@@ -57,7 +57,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QProgressBar" name="progressBar">
+        <widget class="QProgressBar" name="progressBar_input">
          <property name="value">
           <number>0</number>
          </property>
@@ -82,16 +82,30 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLineEdit" name="lineEdit_filepath_2"/>
+          <widget class="QLineEdit" name="lineEdit_outputFilepath"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="pushButton_browseOutput">
            <property name="text">
             <string>Browse</string>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_bytesWritten">
+         <property name="text">
+          <string>Byter written: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="progressBar_output">
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -147,7 +161,7 @@
      <x>0</x>
      <y>0</y>
      <width>761</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

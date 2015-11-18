@@ -14,27 +14,27 @@ class Controller : public QObject
 	Q_OBJECT
 
 public:
-	Controller();
+	Controller(Buffer *buffer, Reader *reader, Writer *writer);
 	~Controller();
 
-	void setBuffer(Buffer *buffer);
-	void setReader(Reader *reader);
-	void setWriter(Writer *writer);
-
 	void setInputFilepath(const QString &filepath);
+	void setOutputFilepath(const QString &filepath);
 
 	void start();
 
 protected slots:
 	void onBytesRead(qint64 pos);
+	void onBytesWritten(qint64 pos);
 	void onFileOpened();
 
 signals:
 	void bytesRead(qint64 pos);
+	void bytesWritten(qint64 pos);
 	void closed();
 	void fileOpened();
 
 private:
+	bool m_oneFileOpened;
 	Buffer *m_pBuffer;
 	QThread *m_pThread;
 	Reader *m_pReader;

@@ -20,8 +20,10 @@ public:
 	~MainWindow();
 
 private slots:
-	void browse();
-	void bytesRead(qint64 bytes);
+	void browseInput();
+	void browseOutput();
+	void bytesRead(qint64 pos);
+	void bytesWritten(qint64 pos);
 	void readingFinished();
 	void readingStarted();
 	void start();
@@ -29,7 +31,7 @@ private slots:
 private:
 	Ui::MainWindow *ui;
 	Buffer m_buffer;
-	Controller m_controller;
+	Controller *m_pController;
 	Reader m_reader;
 	Writer m_writer;
 

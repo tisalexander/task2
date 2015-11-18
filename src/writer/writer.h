@@ -14,18 +14,20 @@ class WriterWorker : public QObject
 	friend class Writer;
 
 protected slots:
+	void close();
 	void open();
-	void write();
+	void writeBlock();
 
 signals:
+	void closed();
 	void opened();
+	void bytesWritten(qint64 pos);
 
 protected:
 	WriterWorker();
 	~WriterWorker();
 
 private:
-	bool m_stop;
 	Buffer *m_pBuffer;
 	QFile m_file;
 	QString m_filepath;
@@ -42,17 +44,20 @@ public:
 
 	void setBuffer(Buffer *buffer);
 	void setFilepath(const QString &filepath);
-	void stop();
 
 public slots:
+	void close();
 	void open();
-	void write();
+	void writeBlock();
 
 signals:
+	void closed();
 	void opened();
+	void bytesWritten(qint64 pos);
 
+	void signalClose();
 	void signalOpen();
-	void signalWrite();
+	void signalWriteBlock();
 
 private:
 	QThread *m_pThread;

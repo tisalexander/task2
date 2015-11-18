@@ -7,15 +7,27 @@
 /*------- WriterWorker ------------------------------------------------------*/
 WriterWorker::WriterWorker()
 {
-	m_stop = false;
 }
 
 WriterWorker::~WriterWorker()
 {
 }
 
+void WriterWorker::close()
+{
+	m_file.close();
+
+	emit closed();
+}
+
 void WriterWorker::open()
 {
+	if (QFile::exists(m_filepath)) {
+		if (!QFile::remove(m_filepath)) {
+			return;
+		}
+	}
+
 	m_file.setFileName(m_filepath);
 
 	if (!m_file.open(QIODevice::WriteOnly)) {
@@ -25,27 +37,19 @@ void WriterWorker::open()
 	emit opened();
 }
 
-void WriterWorker::write()
+void WriterWorker::writeBlock()
 {
-	/*
-	m_stop = false;
+	m_pBuffer->lock();
 
-	while (true) {
-		m_pBuffer->lock();
+	const char *buffer = m_pBuffer->buffer();
+	const int dataSize = m_pBuffer->dataSize();
 
-		if (!m_pBuffer->isEmpty()) {
-			// qDebug() << "Writer: " << QThread::currentThreadId();
-			m_pBuffer->clear();
-			usleep(100000);
-		}
+	QDataStream out(&m_file);
+	out.writeRawData(buffer, dataSize);
 
-		m_pBuffer->unlock();
+	m_pBuffer->unlock();
 
-		if (m_stop) {
-			return;
-		}
-	}
-	*/
+	emit bytesWritten(m_file.pos());
 }
 
 /*------- Writer ------------------------------------------------------------*/
@@ -68,16 +72,23 @@ Writer::Writer()
 	connect(m_pWorker, SIGNAL(opened()),
 			SIGNAL(opened()));
 
-	// connect(this, SIGNAL(signalWrite()),
-	//		m_pWorker, SLOT(write()));
+	connect(this, SIGNAL(signalWriteBlock()),
+			m_pWorker, SLOT(writeBlock()));
+
+	connect(m_pWorker, SIGNAL(bytesWritten(qint64)),
+			SIGNAL(bytesWritten(qint64)));
+
+	connect(this, SIGNAL(signalClose()),
+			m_pWorker, SLOT(close()));
+
+	connect(m_pWorker, SIGNAL(closed()),
+			SIGNAL(closed()));
 
 	m_pThread->start();
 }
 
 Writer::~Writer()
 {
-	// stop();
-
 	m_pThread->quit();
 	m_pThread->wait();
 }
@@ -92,17 +103,17 @@ void Writer::setFilepath(const QString &filepath)
 	m_pWorker->m_filepath = filepath;
 }
 
+void Writer::close()
+{
+	emit signalClose();
+}
+
 void Writer::open()
 {
 	emit signalOpen();
 }
 
-void Writer::stop()
+void Writer::writeBlock()
 {
-	m_pWorker->m_stop = true;
-}
-
-void Writer::write()
-{
-	emit signalWrite();
+	emit signalWriteBlock();
 }

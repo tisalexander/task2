@@ -21,9 +21,6 @@ void ReaderWorker::close()
 {
 	m_file.close();
 
-	qDebug() << "ReaderWorker::close()";
-	qDebug() << "thread ID: " << QThread::currentThreadId() << "\n";
-
 	emit closed();
 }
 
@@ -57,8 +54,6 @@ void ReaderWorker::readBlock()
 	if (bytesToRead) {
 		m_pBuffer->lock();
 
-		qDebug() << "ReaderWorker::readBlock()";
-
 		readBytes = in.readRawData(buffer, bytesToRead);
 		m_position = m_file.pos();
 		m_pBuffer->setDataSize(readBytes);
@@ -67,11 +62,6 @@ void ReaderWorker::readBlock()
 
 		emit bytesRead(m_position);
 	}
-
-	// if (m_stop) {
-	// 	file.close();
-	// 	return;
-	// }
 }
 
 /*------- Reader ------------------------------------------------------------*/
@@ -132,9 +122,6 @@ void Reader::setFilepath(const QString &filepath)
 
 void Reader::close()
 {
-	qDebug() << "Reader::close()";
-	qDebug() << "thread ID: " << QThread::currentThreadId() << "\n";
-
 	emit signalClose();
 }
 
