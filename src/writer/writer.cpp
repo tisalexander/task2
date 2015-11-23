@@ -45,6 +45,7 @@ void WriterWorker::writeBlock()
 	const int dataSize = m_pBuffer->dataSize();
 
 	QDataStream out(&m_file);
+
 	out.writeRawData(buffer, dataSize);
 
 	m_pBuffer->unlock();

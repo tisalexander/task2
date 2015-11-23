@@ -11,7 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	m_pController = new Controller(&m_buffer, &m_reader, &m_writer);
+	m_pController = new Controller(&m_buffer, &m_reader, &m_writer,
+								   &m_cryptographer);
 
 	connect();
 }
@@ -67,6 +68,27 @@ void MainWindow::bytesWritten(qint64 pos)
 	ui->progressBar_output->setValue(progress * 100.0f + 0.5f);
 }
 
+void MainWindow::hashCalculated(QString filepath, QByteArray array)
+{
+	if (filepath == ui->lineEdit_filepath->text()) {
+		ui->label_hashInput->setText("Hash: " + QString(array.toHex()));
+	}
+
+	if (filepath == ui->lineEdit_outputFilepath->text()) {
+		ui->label_hashOutput->setText("Hash: " + QString(array.toHex()));
+	}
+
+	const QString hash = QString(array.toHex());
+
+	if (ui->label_hashInput->text().contains(hash) &&
+		ui->label_hashOutput->text().contains(hash)) {
+		ui->label_hashInput->setText(QString("Hash: <font color=""green"">%1</font>")
+									 .arg(QString(array.toHex())));
+		ui->label_hashOutput->setText(QString("Hash: <font color=""green"">%1</font>")
+									 .arg(QString(array.toHex())));
+	}
+}
+
 void MainWindow::readingFinished()
 {
 	ui->lineEdit_filepath->setEnabled(true);
@@ -91,6 +113,9 @@ void MainWindow::readingStarted()
 
 void MainWindow::start()
 {
+	ui->label_hashInput->setText("Hash: ");
+	ui->label_hashOutput->setText("Hash: ");
+
 	m_pController->setInputFilepath(ui->lineEdit_filepath->text());
 	m_pController->setOutputFilepath(ui->lineEdit_outputFilepath->text());
 
@@ -119,4 +144,7 @@ void MainWindow::connect()
 
 	QObject::connect(m_pController, SIGNAL(closed()),
 					 SLOT(readingFinished()));
+
+	QObject::connect(m_pController, SIGNAL(hashCalculated(QString,QByteArray)),
+					 SLOT(hashCalculated(QString,QByteArray)));
 }

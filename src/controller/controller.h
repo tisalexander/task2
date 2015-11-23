@@ -4,6 +4,7 @@
 #include <QtCore/QObject>
 
 class Buffer;
+class Cryptographer;
 class QThread;
 class Reader;
 class Writer;
@@ -14,7 +15,7 @@ class Controller : public QObject
 	Q_OBJECT
 
 public:
-	Controller(Buffer *buffer, Reader *reader, Writer *writer);
+	Controller(Buffer *buffer, Reader *reader, Writer *writer, Cryptographer *cryptographer);
 	~Controller();
 
 	void setInputFilepath(const QString &filepath);
@@ -25,6 +26,7 @@ public:
 protected slots:
 	void onBytesRead(qint64 pos);
 	void onBytesWritten(qint64 pos);
+	void onFileClosed();
 	void onFileOpened();
 
 signals:
@@ -32,10 +34,14 @@ signals:
 	void bytesWritten(qint64 pos);
 	void closed();
 	void fileOpened();
+	void hashCalculated(QString filepath, QByteArray array);
 
 private:
 	bool m_oneFileOpened;
 	Buffer *m_pBuffer;
+	Cryptographer *m_pCryptographer;
+	QString m_filepathInput;
+	QString m_filepathOutput;
 	QThread *m_pThread;
 	Reader *m_pReader;
 	Writer *m_pWriter;

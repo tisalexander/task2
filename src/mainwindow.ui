@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>761</width>
-    <height>413</height>
+    <height>415</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,6 +63,13 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLabel" name="label_hashInput">
+         <property name="text">
+          <string>Hash: </string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -104,6 +111,13 @@
         <widget class="QProgressBar" name="progressBar_output">
          <property name="value">
           <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_hashOutput">
+         <property name="text">
+          <string>Hash: </string>
          </property>
         </widget>
        </item>

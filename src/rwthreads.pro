@@ -23,6 +23,11 @@ SOURCES += controller/controller.cpp
 
 HEADERS += controller/controller.h
 
+#Cryptographer
+SOURCES += cryptographer/cryptographer.cpp
+
+HEADERS += cryptographer/cryptographer.h
+
 #Reader
 SOURCES += reader/reader.cpp
 
