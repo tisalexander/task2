@@ -3,6 +3,7 @@
 #include "../buffer/buffer.h"
 #include <QtCore/QDebug>
 #include <QtCore/QThread>
+#include <QDataStream>
 
 /*------- WriterWorker ------------------------------------------------------*/
 WriterWorker::WriterWorker()

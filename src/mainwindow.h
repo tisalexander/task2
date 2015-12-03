@@ -6,7 +6,7 @@
 #include "cryptographer/cryptographer.h"
 #include "reader/reader.h"
 #include "writer/writer.h"
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
 namespace Ui {
 	class MainWindow;

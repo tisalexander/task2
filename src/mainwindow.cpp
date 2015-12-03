@@ -3,7 +3,7 @@
 
 #include <QtCore/QtDebug>
 #include <QtCore/QThread>
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	m_pController = new Controller(&m_buffer, &m_reader, &m_writer,
 								   &m_cryptographer);
+
+    setWindowTitle(QString("Qt version: %1").arg(QT_VERSION_STR));
 
 	connect();
 }

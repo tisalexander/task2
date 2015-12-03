@@ -4,6 +4,7 @@
 #include <QtCore/QtDebug>
 #include <QtCore/QFile>
 #include <QtCore/QThread>
+#include <QDataStream>
 
 /*------- ReaderWorker ------------------------------------------------------*/
 ReaderWorker::ReaderWorker()
@@ -39,7 +40,7 @@ void ReaderWorker::open()
 
 void ReaderWorker::readBlock()
 {
-	QDataStream in(&m_file);
+    QDataStream in(&m_file);
 
 	qint64 readBytes = 0;
 	qint64 bytesToRead = 0;
